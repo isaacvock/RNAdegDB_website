@@ -1,6 +1,6 @@
 src
 src/*
-.Rproj.user
+.Rproj.user/
 *.Rproj
 .Rhistory
 .httr-oauth
@@ -10,3 +10,14 @@ src/*
 inst/doc
 vignettes/rsconnect
 docs
+
+# CRAN metadata
+.RData
+
+# renv cache on your machine
+renv/library/
+renv/python/
+
+# secrets – never commit
+.Renviron
+
