@@ -151,7 +151,58 @@ ui <- fluidPage(
             </ul>
           "),
                             
-                            uiOutput("query_msg")  # “no rows matched…” alerts appear here
+                            uiOutput("query_msg"),  # “no rows matched…” alerts appear here
+                            
+                            ### About block ####
+                            hr(), # Thin horizontal rule
+                            h4("About RNAdecayCafe"),
+                            
+                            tags$p(
+                              "RNAdecayCafe is a curated set of high-quality, highly reproducible RNA ",
+                              "half-life estimates derived from nucleotide-recoding RNA-seq (NR-seq) ",
+                              "experiments—namely ", 
+                              tags$a(
+                                href = 'https://www.nature.com/articles/nmeth.4435',
+                                "SLAM-seq"
+                                )
+                              , " and ", 
+                              tags$a(
+                                href = 'https://www.nature.com/articles/nmeth.4582',
+                                "TimeLapse-seq"
+                                ),
+                              ". ",
+                              "NR-seq currently represents the state-of-the-art in high-throughput RNA-",
+                              "stability quantification."
+                            ),
+                            
+                            tags$p(
+                              "We re-processed all published NR-seq datasets using the ",
+                              tags$a(href = 'https://www.biorxiv.org/content/10.1101/2024.10.14.617411v1',
+                                     "EZbakR suite"), " (pipeline ",
+                              tags$a(href = 'https://github.com/isaacvock/fastq2EZbakR', "fastq2EZbakR"),
+                              ", analysis package ",
+                              tags$a(href = 'https://github.com/isaacvock/EZbakR', "EZbakR"),
+                              ") and found that pulse-label NR-seq data provide highly consistent half-life ",
+                              "estimates across labs, protocols, and cell lines."
+                            ),
+                            
+                            tags$p(
+                              "The current release of RNAdecayCafe aggregates ",
+                              tags$strong("66 samples"), ", ",
+                              tags$strong("16 datasets"), ", ",
+                              tags$strong("12 cell lines"), ", and ",
+                              tags$strong("17 573 genes"), ". ",
+                              "Below is a heatmap of the sample-to-sample log(half-life) Pearson correlations.",
+                              " The main distinguishing factor between samples is the time for which cells were labeled,",
+                              " which sets the dynamic range of the half-life estimates."
+                            ),
+                            
+                            ### heatmap image
+                            tags$img(
+                              src = "heatmap.png",
+                              alt = "Sample-to-sample correlation heatmap",
+                              style = "max-width:80%; height:auto; margin-top:1rem;"
+                            )
                   )
                 )
               ),
@@ -168,6 +219,99 @@ ui <- fluidPage(
                 title = "Averages",
                 br(),
                 DTOutput("avg_tbl")
+              ),
+              
+              ## ---- 4.4 Sample Details ---------------------------------------
+              tabPanel(
+                title = "Sample Details",
+                br(),
+                DTOutput("sample_tbl")
+              ),
+              
+              ## ---- 4.5 Explaining tables ------------------------------------
+              tabPanel(
+                title = "Explaining the Tables",
+                br(),
+                
+                h4("Results"),
+                tags$ol(
+                  tags$li(tags$b("sample"), ": SRA accession for the data that the estimate comes from."),
+                  tags$li(tags$b("gene_name"), ": Gene symbol (hg38 annotation)."),
+                  tags$li(tags$b("cell_line"), ": Cell line in which the RNA was measured."),
+                  tags$li(tags$b("dataset"), ": Citation for the source data."),
+                  tags$li(tags$b("kdeg"), ": Degradation-rate constant estimate (units = 1 / hr)."),
+                  tags$li(
+                    tags$b("donorm kdeg"),
+                    ": Dropout-normalised ", tags$code("kdeg"),
+                    " estimate. Normalizes out global differences in estimates seen between samples, often caused by dropout (see ",
+                    tags$a(
+                      href = "https://www.biorxiv.org/content/10.1101/2023.05.24.542133v1",
+                      "our dropout preprint"
+                    ),
+                    " and ",
+                    tags$a(
+                      href="https://academic.oup.com/nar/article/52/7/e35/7612100",
+                      "the Erhard lab's paper"
+                    ),
+                    " for details). We suggest using the dropout normalized values, especially when comparing across cell lines or samples,",
+                    " but we provide the raw estimates for transparency. NOTE: dropout normalization does not impact",
+                    " relative ordering of half-lives; thus, if RNA A is more stable than RNA B before normalization, it will still have a longer",
+                    " halflife after normalization."
+                  ),
+                  tags$li(tags$b("halflife"), ": log(2) / kdeg; average lifetime of the RNA."),
+                  tags$li(tags$b("donorm halflife"), ": Dropout–normalised halflife."),
+                  tags$li(tags$b("reads"), ": Number of reads contributing to the estimate.")
+                ),
+                
+                # ---------------- Averages table -----------------------------------------
+                h4("Averages"),
+                tags$ol(
+                  tags$li(tags$b("gene_name"), ": as above."),
+                  tags$li(tags$b("cell_line"), ": as above."),
+                  tags$li(
+                    tags$b("avg kdeg"),
+                    ": Uncertainty-weighted mean kdeg across samples of that cell line."
+                  ),
+                  tags$li(
+                    tags$b("avg donorm kdeg"),
+                    ": Dropout–normalised uncertainty weighted mean kdeg."
+                  ),
+                  tags$li(
+                    tags$b("avg halflife"), " and ", tags$b("avg donorm halflife"),
+                    ": log(2) / the relevant avg kdeg."
+                  )
+                ),
+                
+                # ---------------- Sample-Details table -----------------------------------
+                h4("Sample Details"),
+                tags$ol(
+                  tags$li(tags$b("sample"), ": SRA accession code."),
+                  tags$li(tags$b("dataset"), ": Citation for the dataset."),
+                  tags$li(
+                    tags$b("pnew"),
+                    ": T-to-C conversion rate in *new* (labelled) reads. Estimated by EZbakR."
+                  ),
+                  tags$li(
+                    tags$b("pold"),
+                    ": T-to-C conversion rate in *old* (unlabelled) reads. Estimated by EZbakR."
+                  ),
+                  tags$li(
+                    tags$b("label time"),
+                    ": Duration of s<sup>4</sup>U labelling; determines dynamic range of half-life estimates. Half-lives much shorter or longer than this are difficult to accurately estimate."
+                  ),
+                  tags$li(tags$b("cell line"), ": Cell line used."),
+                  tags$li(tags$b("threePseq"), ": Indicates that the data comes from 3′-end sequencing (vs total RNA)."),
+                  tags$li(
+                    tags$b("total reads"),
+                    ": Total number of reads after filtering intronic and multi-mapping reads."
+                  ),
+                  tags$li(
+                    tags$b("median halflife"),
+                    ": Median halflife for the sample. High values are suggestive of dropout; ",
+                    "deep sequencing can lower medians by capturing many rapidly degraded, ",
+                    "low-abundance transcripts (e.g., targets of NMD)."
+                  )
+                )
               )
   )
 )
@@ -190,6 +334,35 @@ server <- function(input, output, session) {
     encoded <- URLencode(paste(vec, collapse = ","), reserved = TRUE)
     sprintf("%s=%s(%s)", col, op, encoded)
   }
+  
+  
+  ## ---- pull the full sampledetails table ------------------------------------
+  sample_url <- sprintf("%s/rest/v1/sampledetails?select=*", SUPABASE_URL)
+  sample_txt <- content(GET(sample_url, auth_headers), as = "text", encoding = "UTF-8")
+  sample_dat <- fromJSON(sample_txt, flatten = TRUE)
+  
+  # optional: prettify column names
+  names(sample_dat) <- gsub("_", " ", names(sample_dat), fixed = TRUE)
+  
+  output$sample_tbl <- renderDT({
+    num_cols <- names(sample_dat)[sapply(sample_dat, is.numeric)]
+    datatable(
+      sample_dat,
+      extensions = c("Buttons", "FixedHeader"),
+      options = list(
+        dom            = "Bfrtip",
+        buttons        = c("copy", "csv", "excel"),
+        fixedHeader    = TRUE,
+        pageLength     = 25,
+        searchHighlight = TRUE
+      ),
+      class = "stripe hover compact",
+      rownames = FALSE
+    ) %>%
+      formatRound(columns = num_cols, digits = 2)
+  })
+  
+  
 
   observeEvent(input$go, {
     
