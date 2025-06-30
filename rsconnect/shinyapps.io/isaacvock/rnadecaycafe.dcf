@@ -5,7 +5,7 @@ account: isaacvock
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 15009781
-bundleId: 10542583
+bundleId: 10542682
 url: https://isaacvock.shinyapps.io/rnadecaycafe/
 version: 1
 asMultiple: FALSE

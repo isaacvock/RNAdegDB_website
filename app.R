@@ -78,8 +78,7 @@ ui <- fluidPage(
   
   # -- app header -------------------------------------------------------------
   titlePanel(
-    title = "RNAdecayCafe Explorer",
-    icon("dna", class = "me-2") |> tagAppendAttributes(style = "color:#0d6efd;")
+    title = "RNAdecayCafe Explorer"
   ),
   
   # -- tabset -----------------------------------------------------------------
@@ -359,7 +358,17 @@ server <- function(input, output, session) {
       class = "stripe hover compact",
       rownames = FALSE
     ) %>%
-      formatRound(columns = num_cols, digits = 2)
+      ## ---- precision tweaks --------------------------------------------------
+      # pnew & pold  → 4 decimals
+      formatRound(columns = c("pnew", "pold"), digits = 4) %>%
+      
+      formatRound(columns = c("median halflife"), digits = 2) %>%
+      
+      # label time   → 2 decimals       (name now has a space)
+      formatRound(columns = "label time", digits = 2) %>%
+      
+      # total reads  → no decimals
+      formatRound(columns = "total reads", digits = 0)
   })
   
   
