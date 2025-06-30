@@ -1,0 +1,10 @@
+name: rnadecaycafe
+title: RNAdecayCafe Explorer
+username: isaacvock
+account: isaacvock
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 15009781
+bundleId: 10539420
+url: https://isaacvock.shinyapps.io/rnadecaycafe/
+version: 1

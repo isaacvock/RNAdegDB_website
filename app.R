@@ -12,6 +12,7 @@ library(httr)
 library(jsonlite)
 library(DT)     # interactive tables
 library(bslib)  # Bootstrap 5 themes
+library(magrittr)
 
 ## ---------------------------------------------------------------------------
 ## 1. Supabase credentials ----------------------------------------------------
